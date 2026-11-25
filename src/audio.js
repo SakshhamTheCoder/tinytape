@@ -7,6 +7,8 @@ export async function render(buffer, settings) {
     async () => {
       const player = new Tone.GrainPlayer(buffer)
       player.playbackRate = settings.tempo
+      player.detune = settings.pitch * 100
+      player.grainSize = 0.1
       player.toDestination()
       player.start(0)
     },
