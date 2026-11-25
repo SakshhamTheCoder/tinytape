@@ -1,7 +1,7 @@
 import * as Tone from 'tone'
 
 export async function render(buffer, settings) {
-  const length = buffer.duration / settings.tempo
+  const length = buffer.duration / settings.tempo + (settings.reverb ? 3 : 0)
 
   const result = await Tone.Offline(
     async () => {
@@ -9,7 +9,9 @@ export async function render(buffer, settings) {
       player.playbackRate = settings.tempo
       player.detune = settings.pitch * 100
       player.grainSize = 0.1
-      player.toDestination()
+      const room = new Tone.Reverb({ decay: 3, wet: settings.reverb })
+      await room.ready
+      player.chain(room, Tone.getDestination())
       player.start(0)
     },
     length,
