@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { render } from './audio.js'
+import { toWav } from './wav.js'
 
 const CONTROLS = [
   { key: 'tempo', label: 'Tempo', min: 0.5, max: 1.5, step: 0.05, start: 1, show: (v) => `${v.toFixed(2)}×` },
@@ -80,6 +81,22 @@ export default function App() {
     )
   }
 
+  function download() {
+    run(
+      'Processing…',
+      async () => {
+        const wav = toWav(await render(song.buffer, settings))
+        const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }))
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${song.name.replace(/\.[^.]+$/, '')}-tinytape.wav`
+        link.click()
+        setTimeout(() => URL.revokeObjectURL(url), 1000)
+      },
+      'Could not process this song. Try a shorter file.',
+    )
+  }
+
   function change(key, value) {
     stop()
     setSettings((old) => ({ ...old, [key]: value }))
@@ -104,11 +121,14 @@ export default function App() {
       <main className="wrap stage">
         <div>
           <h1>Small audio editor</h1>
-          <p className="lead">Load a song, change how it sounds and listen to it.</p>
+          <p className="lead">Load a song, change how it sounds and save it as a WAV file.</p>
           <p className="note">Your file stays in this browser. Nothing is uploaded.</p>
           <div className="buttons">
             <button className="btn btn--primary" onClick={() => picker.current.click()} disabled={busy !== ''}>
               {song ? 'Choose another file' : 'Choose audio file'}
+            </button>
+            <button className="btn btn--secondary" onClick={download} disabled={locked}>
+              Download WAV
             </button>
             <input ref={picker} type="file" accept="audio/*" onChange={load} hidden />
           </div>
