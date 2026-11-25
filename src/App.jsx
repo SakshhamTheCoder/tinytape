@@ -4,6 +4,7 @@ import { toWav } from './wav.js'
 
 const CONTROLS = [
   { key: 'tempo', label: 'Tempo', min: 0.5, max: 1.5, step: 0.05, start: 1, show: (v) => `${v.toFixed(2)}×` },
+  { key: 'reverb', label: 'Reverb', min: 0, max: 1, step: 0.05, start: 0, show: (v) => `${Math.round(v * 100)}%` },
 ]
 
 const startValues = () => Object.fromEntries(CONTROLS.map((c) => [c.key, c.start]))
